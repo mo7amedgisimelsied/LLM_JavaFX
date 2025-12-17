@@ -1,0 +1,98 @@
+/* Root Pane - Dark Purple Background */
+.root-pane {
+    -fx-background-color: #6B2D8F;
+}
+
+/* Title Label - Large White Text */
+.title-label {
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* Subtitle Label */
+.subtitle-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: white;
+}
+
+/* Topic Buttons - Large White Rounded Buttons */
+.topic-button {
+    -fx-background-color: white;
+    -fx-text-fill: #6B2D8F;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-padding: 20px 40px;
+    -fx-background-radius: 15px;
+    -fx-cursor: hand;
+    -fx-min-width: 300px;
+}
+
+.topic-button:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+.topic-button:pressed {
+    -fx-background-color: #e0e0e0;
+}
+
+/* Question Box - Light Purple Container */
+.question-box {
+    -fx-background-color: #8B4CAF;
+    -fx-background-radius: 15px;
+}
+
+/* Question Text */
+.question-text {
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+    -fx-font-weight: normal;
+}
+
+/* Radio Button Options */
+.option-radio {
+    -fx-font-size: 18px;
+    -fx-text-fill: white;
+}
+
+.option-radio .radio {
+    -fx-background-color: white;
+    -fx-background-radius: 50%;
+}
+
+.option-radio:selected .radio {
+    -fx-background-color: white;
+}
+
+.option-radio .dot {
+    -fx-background-color: #6B2D8F;
+    -fx-background-radius: 50%;
+}
+
+/* Navigation Buttons */
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-padding: 10px 20px;
+    -fx-border-color: transparent;
+    -fx-background-radius: 5px;
+}
+
+.nav-button:hover {
+    -fx-text-fill: #E0E0E0;
+    -fx-underline: true;
+}
+
+.nav-button:disabled {
+    -fx-opacity: 0.4;
+    -fx-cursor: default;
+}
+
+/* Score Label - Large Result Text */
+.score-label {
+    -fx-font-size: 72px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
