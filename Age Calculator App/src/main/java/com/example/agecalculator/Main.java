@@ -88,7 +88,7 @@ public class Main extends Application {
 
         Scene scene = new Scene(root, 1440, 1024);
         scene.getStylesheets().add(Objects.requireNonNull(
-                Main.class.getResource("styles.css"),
+                Main.class.getResource("/styles.css"),
                 "styles.css must be placed under resources/com/example/agecalculator/"
         ).toExternalForm());
 
