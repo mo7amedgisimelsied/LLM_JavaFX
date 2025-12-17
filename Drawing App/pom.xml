@@ -51,6 +51,10 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.paintapp.Main</mainClass>
+                    <options>
+                        <option>--add-modules</option>
+                        <option>javafx.controls,javafx.graphics,javafx.swing</option>
+                    </options>
                 </configuration>
             </plugin>
         </plugins>

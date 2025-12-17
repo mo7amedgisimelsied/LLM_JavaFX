@@ -13,9 +13,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -258,12 +255,15 @@ public class Main extends Application {
         opacityControl.setAlignment(Pos.CENTER_LEFT);
         opacitySlider = new Slider(0, 1, 1);
         opacitySlider.setPrefWidth(180);
+
+        Label opacityValueLabel = new Label("100 %");
+        opacityValueLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666666;");
+
         opacitySlider.valueProperty().addListener((obs, old, val) -> {
             opacity = val.doubleValue();
             opacityValueLabel.setText((int)(opacity * 100) + " %");
         });
-        Label opacityValueLabel = new Label("100 %");
-        opacityValueLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666666;");
+
         opacityControl.getChildren().addAll(opacitySlider, opacityValueLabel);
         opacityBox.getChildren().addAll(opacityLabel, opacityControl);
 
@@ -296,12 +296,15 @@ public class Main extends Application {
         thicknessControl.setAlignment(Pos.CENTER_LEFT);
         lineThicknessSlider = new Slider(0.01, 1, 0.76);
         lineThicknessSlider.setPrefWidth(180);
+
+        Label thicknessValueLabel = new Label("76 %");
+        thicknessValueLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666666;");
+
         lineThicknessSlider.valueProperty().addListener((obs, old, val) -> {
             lineThickness = val.doubleValue();
             thicknessValueLabel.setText((int)(lineThickness * 100) + " %");
         });
-        Label thicknessValueLabel = new Label("76 %");
-        thicknessValueLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666666;");
+
         thicknessControl.getChildren().addAll(lineThicknessSlider, thicknessValueLabel);
         thicknessBox.getChildren().addAll(thicknessLabel, thicknessControl);
 
