@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -14,7 +15,6 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -87,14 +87,17 @@ public class Main extends Application {
         BorderPane.setMargin(mainContent, new Insets(40, 0, 40, 0));
 
         Scene scene = new Scene(root, 1440, 1024);
-        scene.getStylesheets().add(
-                getClass().getResource("/com/example/agecalculator/styles.css").toExternalForm()
-        );
+        scene.getStylesheets().add(Objects.requireNonNull(
+                Main.class.getResource("styles.css"),
+                "styles.css must be placed under resources/com/example/agecalculator/"
+        ).toExternalForm());
 
         stage.setTitle("Age Calculator");
         stage.setScene(scene);
         stage.show();
     }
+
+    // ... rest of the class remains unchanged ...
 
     private DatePicker buildDatePicker() {
         DatePicker picker = new DatePicker();
