@@ -1,0 +1,125 @@
+css
+.app-root {
+    -fx-background-color: #ffffff;
+    -fx-font-family: "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 14px;
+}
+
+.top-bar {
+    -fx-padding: 18 28;
+    -fx-spacing: 24;
+    -fx-border-color: #e7e7e7;
+    -fx-border-width: 0 0 1 0;
+    -fx-background-color: #ffffff;
+}
+
+.brand-label {
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #111111;
+}
+
+.top-action {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #333333;
+    -fx-font-size: 14px;
+    -fx-padding: 6 12;
+    -fx-cursor: hand;
+}
+
+.top-action:disabled {
+    -fx-opacity: 0.4;
+    -fx-cursor: default;
+}
+
+.tool-bar {
+    -fx-background-color: #f9f9f9;
+    -fx-border-color: #e7e7e7;
+    -fx-border-width: 0 1 0 0;
+}
+
+.tool-button {
+    -fx-pref-width: 56;
+    -fx-pref-height: 56;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d8d8d8;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 0;
+}
+
+.tool-button:hover {
+    -fx-border-color: #bdbdbd;
+}
+
+.tool-button:selected {
+    -fx-background-color: #e4e4e4;
+    -fx-border-color: #b0b0b0;
+}
+
+.canvas-wrapper {
+    -fx-background-color: #ffffff;
+}
+
+.drawing-pane {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #1a1a1a;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.properties-panel {
+    -fx-padding: 24;
+    -fx-spacing: 24;
+    -fx-background-color: #fafafa;
+    -fx-border-color: #e7e7e7;
+    -fx-border-width: 0 0 0 1;
+}
+
+.gradient-stack, .hue-stack {
+    -fx-padding: 10;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dcdcdc;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+}
+
+.properties-panel Label {
+    -fx-text-fill: #4b4b4b;
+    -fx-font-weight: 500;
+}
+
+.property-slider {
+    -fx-pref-width: 260;
+}
+
+.color-preview {
+    -fx-background-color: #ff0000;
+    -fx-border-color: #cfcfcf;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.color-preview-active {
+    -fx-border-color: #4a90e2;
+    -fx-border-width: 2;
+}
+
+.canvas-text-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #4a90e2;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 4 8;
+}
+
+.property-slider .track {
+    -fx-background-color: linear-gradient(to right, #dbdbdb, #bfbfbf);
+    -fx-background-radius: 4;
+}
+
+.property-slider .thumb {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: transparent;
+}
