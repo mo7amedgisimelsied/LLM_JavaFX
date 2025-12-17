@@ -1,11 +1,5 @@
 package com.example.agecalculator;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Objects;
-
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,6 +9,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -22,87 +17,85 @@ import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+
 public class Main extends Application {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    private static final String DATE_PATTERN = "MM/dd/yyyy";
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
 
-    private DatePicker dobPicker;
-    private DatePicker currentPicker;
-    private ResultCard yearsCard;
-    private ResultCard monthsCard;
-    private ResultCard daysCard;
+    private Label yearsValueLabel;
+    private Label monthsValueLabel;
+    private Label daysValueLabel;
     private Label messageLabel;
 
     @Override
     public void start(Stage stage) {
-        dobPicker = buildDatePicker();
-        currentPicker = buildDatePicker();
-
         BorderPane root = new BorderPane();
         root.getStyleClass().add("app-root");
 
-        StackPane headerPane = new StackPane();
-        headerPane.getStyleClass().add("header-pane");
         Label headerLabel = new Label("Age Calculator");
-        headerLabel.getStyleClass().add("header-label");
-        headerPane.getChildren().add(headerLabel);
+        headerLabel.getStyleClass().add("app-title");
+        StackPane headerPane = new StackPane(headerLabel);
+        headerPane.getStyleClass().add("header");
+        headerPane.setPadding(new Insets(34, 16, 34, 16));
         root.setTop(headerPane);
 
-        VBox mainContent = new VBox();
-        mainContent.getStyleClass().add("main-content");
-        mainContent.setSpacing(40);
-        mainContent.setAlignment(Pos.TOP_CENTER);
+        DatePicker dobPicker = createDatePicker();
+        DatePicker currentPicker = createDatePicker();
+        currentPicker.setValue(LocalDate.now());
 
-        VBox formBox = new VBox();
-        formBox.getStyleClass().add("form-box");
-        formBox.setSpacing(30);
-        formBox.setAlignment(Pos.CENTER);
-
-        formBox.getChildren().addAll(
-                createDateRow("Date of Birth", dobPicker),
-                createDateRow("Current Date", currentPicker)
-        );
+        VBox formBox = new VBox(32,
+                createInputRow("Date of Birth", dobPicker),
+                createInputRow("Current Date", currentPicker));
+        formBox.getStyleClass().add("form-section");
 
         Button calculateButton = new Button("Calculate");
-        calculateButton.getStyleClass().add("calculate-button");
-        calculateButton.setOnAction(evt -> calculateAge());
+        calculateButton.getStyleClass().add("action-button");
 
         messageLabel = new Label();
-        messageLabel.getStyleClass().add("error-label");
-        messageLabel.setWrapText(true);
+        messageLabel.getStyleClass().add("message-label");
         messageLabel.setAlignment(Pos.CENTER);
-        messageLabel.setMaxWidth(600);
+        messageLabel.setWrapText(true);
+        messageLabel.setMaxWidth(520);
 
-        yearsCard = new ResultCard("Years");
-        monthsCard = new ResultCard("Months");
-        daysCard = new ResultCard("Days");
+        yearsValueLabel = new Label("0");
+        yearsValueLabel.getStyleClass().add("result-value");
+        monthsValueLabel = new Label("0");
+        monthsValueLabel.getStyleClass().add("result-value");
+        daysValueLabel = new Label("0");
+        daysValueLabel.getStyleClass().add("result-value");
 
-        HBox resultsRow = new HBox(yearsCard, monthsCard, daysCard);
-        resultsRow.getStyleClass().add("results-row");
-        resultsRow.setSpacing(30);
+        HBox resultsRow = new HBox(30,
+                createResultBox("Years", yearsValueLabel),
+                createResultBox("Months", monthsValueLabel),
+                createResultBox("Days", daysValueLabel));
         resultsRow.setAlignment(Pos.CENTER);
+        resultsRow.setPadding(new Insets(25, 0, 0, 0));
 
-        mainContent.getChildren().addAll(formBox, calculateButton, messageLabel, resultsRow);
-        root.setCenter(mainContent);
-        BorderPane.setMargin(mainContent, new Insets(40, 0, 40, 0));
+        calculateButton.setOnAction(event -> calculateAge(dobPicker, currentPicker));
+
+        VBox centerBox = new VBox(40, formBox, calculateButton, messageLabel, resultsRow);
+        centerBox.setAlignment(Pos.TOP_CENTER);
+        centerBox.setPadding(new Insets(100, 0, 0, 0));
+        root.setCenter(centerBox);
 
         Scene scene = new Scene(root, 1440, 1024);
-        scene.getStylesheets().add(Objects.requireNonNull(
-                Main.class.getResource("/styles.css"),
-                "styles.css must be placed under resources/com/example/agecalculator/"
-        ).toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
         stage.setTitle("Age Calculator");
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
 
-    // ... rest of the class remains unchanged ...
-
-    private DatePicker buildDatePicker() {
+    private DatePicker createDatePicker() {
         DatePicker picker = new DatePicker();
-        picker.getStyleClass().add("modern-date-picker");
-        picker.setPromptText("MM/DD/YYYY");
+        picker.setPromptText(DATE_PATTERN);
+        picker.setEditable(true);
         picker.setConverter(new StringConverter<>() {
             @Override
             public String toString(LocalDate date) {
@@ -124,33 +117,39 @@ public class Main extends Application {
         return picker;
     }
 
-    private HBox createDateRow(String labelText, DatePicker picker) {
+    private HBox createInputRow(String labelText, DatePicker picker) {
         Label label = new Label(labelText);
-        label.getStyleClass().add("input-label");
-        label.setMinWidth(200);
+        label.getStyleClass().add("form-label");
+        label.setPrefWidth(220);
+        label.setAlignment(Pos.CENTER_LEFT);
 
-        StackPane inputContainer = wrapWithIcon(picker);
-        HBox.setHgrow(inputContainer, javafx.scene.layout.Priority.ALWAYS);
+        StackPane field = createDateField(picker);
+        field.setMaxWidth(360);
+        HBox.setHgrow(field, Priority.ALWAYS);
 
-        HBox row = new HBox(30, label, inputContainer);
-        row.getStyleClass().add("date-row");
+        HBox row = new HBox(30, label, field);
         row.setAlignment(Pos.CENTER_LEFT);
+        row.setMaxWidth(700);
         return row;
     }
 
-    private StackPane wrapWithIcon(DatePicker datePicker) {
-        StackPane container = new StackPane();
-        container.getStyleClass().add("date-input-container");
-        container.setMinWidth(360);
+    private StackPane createDateField(DatePicker picker) {
+        StackPane wrapper = new StackPane();
+        wrapper.getStyleClass().add("date-field-wrapper");
+        wrapper.setPrefWidth(320);
+        wrapper.setMinWidth(260);
+        wrapper.setMaxWidth(Double.MAX_VALUE);
 
-        datePicker.setPrefWidth(360);
+        picker.setMaxWidth(Double.MAX_VALUE);
+        picker.prefWidthProperty().bind(wrapper.widthProperty());
 
         SVGPath icon = createCalendarIcon();
         StackPane.setAlignment(icon, Pos.CENTER_RIGHT);
-        StackPane.setMargin(icon, new Insets(0, 8, 0, 0));
+        StackPane.setMargin(icon, new Insets(0, 10, 0, 0));
+        icon.setMouseTransparent(true);
 
-        container.getChildren().addAll(datePicker, icon);
-        return container;
+        wrapper.getChildren().addAll(picker, icon);
+        return wrapper;
     }
 
     private SVGPath createCalendarIcon() {
@@ -158,102 +157,81 @@ public class Main extends Application {
         icon.setContent("M30.25 1V10M12.25 1V10M1 19H41.5M5.5 5.5H37C39.4853 5.5 41.5 7.51472 41.5 10V41.5C41.5 43.9853 39.4853 46 37 46H5.5C3.01472 46 1 43.9853 1 41.5V10C1 7.51472 3.01472 5.5 5.5 5.5Z");
         icon.setStroke(Color.web("#1E1E1E"));
         icon.setFill(Color.TRANSPARENT);
+        icon.setStrokeWidth(2.0);
         icon.setScaleX(0.45);
         icon.setScaleY(0.45);
-        icon.setMouseTransparent(true);
         return icon;
     }
 
-    private void calculateAge() {
-        LocalDate dob = parseDatePickerValue(dobPicker);
+    private VBox createResultBox(String title, Label valueLabel) {
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("result-title");
+        VBox box = new VBox(8, titleLabel, valueLabel);
+        box.setAlignment(Pos.CENTER);
+        box.getStyleClass().add("result-box");
+        return box;
+    }
+
+    private void calculateAge(DatePicker dobPicker, DatePicker currentPicker) {
+        messageLabel.setText("");
+
+        LocalDate dob = resolveDate(dobPicker, "Date of Birth");
         if (dob == null) {
-            if (isEditorBlank(dobPicker)) {
-                showError("Please enter your Date of Birth (MM/DD/YYYY).");
-            } else {
-                showError("Date of Birth format is invalid. Use MM/DD/YYYY.");
-            }
             resetResults();
             return;
         }
 
-        LocalDate current = parseDatePickerValue(currentPicker);
+        LocalDate current = resolveDate(currentPicker, "Current Date");
         if (current == null) {
-            if (isEditorBlank(currentPicker)) {
-                showError("Please enter the Current Date (MM/DD/YYYY).");
-            } else {
-                showError("Current Date format is invalid. Use MM/DD/YYYY.");
-            }
             resetResults();
             return;
         }
 
         if (dob.isAfter(current)) {
-            showError("Date of Birth cannot be later than the Current Date.");
+            messageLabel.setText("Date of Birth must be earlier than Current Date.");
             resetResults();
             return;
         }
 
-        Period period = Period.between(dob, current);
-        yearsCard.setValue(period.getYears());
-        monthsCard.setValue(period.getMonths());
-        daysCard.setValue(period.getDays());
-        messageLabel.setText("");
+        long years = ChronoUnit.YEARS.between(dob, current);
+        LocalDate afterYears = dob.plusYears(years);
+
+        long months = ChronoUnit.MONTHS.between(afterYears, current);
+        LocalDate afterMonths = afterYears.plusMonths(months);
+
+        long days = ChronoUnit.DAYS.between(afterMonths, current);
+
+        yearsValueLabel.setText(String.valueOf(years));
+        monthsValueLabel.setText(String.valueOf(months));
+        daysValueLabel.setText(String.valueOf(days));
     }
 
-    private LocalDate parseDatePickerValue(DatePicker picker) {
+    private LocalDate resolveDate(DatePicker picker, String fieldName) {
         LocalDate value = picker.getValue();
         if (value != null) {
             return value;
         }
-        String text = picker.getEditor().getText();
-        if (text == null || text.isBlank()) {
+
+        String raw = picker.getEditor().getText();
+        if (raw == null || raw.isBlank()) {
+            messageLabel.setText(fieldName + " cannot be blank. Use MM/DD/YYYY.");
             return null;
         }
+
         try {
-            LocalDate parsed = LocalDate.parse(text, DATE_FORMATTER);
+            LocalDate parsed = LocalDate.parse(raw, DATE_FORMATTER);
             picker.setValue(parsed);
             return parsed;
         } catch (DateTimeParseException ex) {
+            messageLabel.setText(fieldName + " must follow MM/DD/YYYY.");
             return null;
         }
     }
 
-    private boolean isEditorBlank(DatePicker picker) {
-        String text = picker.getEditor().getText();
-        return text == null || text.isBlank();
-    }
-
-    private void showError(String message) {
-        messageLabel.setText(message);
-    }
-
     private void resetResults() {
-        yearsCard.setValue(0);
-        monthsCard.setValue(0);
-        daysCard.setValue(0);
-    }
-
-    private static class ResultCard extends VBox {
-        private final Label valueLabel;
-
-        ResultCard(String labelText) {
-            getStyleClass().add("result-card");
-            setAlignment(Pos.CENTER);
-            setSpacing(8);
-            setPadding(new Insets(18));
-
-            Label label = new Label(labelText);
-            label.getStyleClass().add("result-label");
-
-            valueLabel = new Label("0");
-            valueLabel.getStyleClass().add("result-value");
-
-            getChildren().addAll(label, valueLabel);
-        }
-
-        void setValue(int value) {
-            valueLabel.setText(String.valueOf(value));
-        }
+        yearsValueLabel.setText("0");
+        monthsValueLabel.setText("0");
+        daysValueLabel.setText("0");
     }
 
     public static void main(String[] args) {

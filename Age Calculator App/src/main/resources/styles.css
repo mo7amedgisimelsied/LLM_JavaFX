@@ -1,96 +1,89 @@
-.root {
-    -fx-background-color: #ffffff;
+.app-root {
+    -fx-background-color: #FFFFFF;
     -fx-font-family: "Arial";
 }
 
-.header-pane {
-    -fx-background-color: #00c5a3;
-    -fx-padding: 30 0;
+.header {
+    -fx-background-color: #00C4A7;
 }
 
-.header-label {
+.app-title {
     -fx-text-fill: #000000;
     -fx-font-size: 36px;
     -fx-font-weight: bold;
 }
 
-.main-content {
-    -fx-padding: 60 220;
-    -fx-alignment: center;
+.form-section {
+    -fx-alignment: CENTER_LEFT;
 }
 
-.form-box {
-    -fx-alignment: center;
-}
-
-.date-row {
-    -fx-alignment: center-left;
-}
-
-.input-label {
-    -fx-text-fill: #000000;
+.form-label {
+    -fx-text-fill: #111111;
     -fx-font-size: 22px;
     -fx-font-weight: bold;
 }
 
-.date-input-container {
-    -fx-border-color: #1e1e1e;
+.date-field-wrapper {
+    -fx-border-color: transparent transparent #1F1F1F transparent;
     -fx-border-width: 0 0 2 0;
-    -fx-padding: 0 0 6 0;
+    -fx-padding: 4 0 3 0;
 }
 
-.modern-date-picker {
+.date-picker {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
+    -fx-text-fill: #000000;
 }
 
-.modern-date-picker > .text-field {
+.date-picker:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.date-picker .text-field {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-padding: 6 40 6 6;
+    -fx-padding: 4 38 4 0;
     -fx-font-size: 18px;
-    -fx-text-fill: #1e1e1e;
+    -fx-prompt-text-fill: rgba(0, 0, 0, 0.35);
 }
 
-.modern-date-picker > .arrow-button {
-    -fx-opacity: 0;
-    -fx-pref-width: 0;
-    -fx-max-width: 0;
+.date-picker .arrow-button {
+    -fx-background-color: transparent;
     -fx-padding: 0;
 }
 
-.calculate-button {
-    -fx-background-color: #00c5a3;
+.date-picker .arrow-button .arrow {
+    -fx-shape: "";
+    -fx-background-color: transparent;
+}
+
+.action-button {
+    -fx-background-color: #00C4A7;
     -fx-text-fill: #000000;
     -fx-font-size: 20px;
     -fx-font-weight: bold;
-    -fx-padding: 12 48;
-    -fx-background-radius: 12;
+    -fx-padding: 12 54;
+    -fx-background-radius: 14;
     -fx-cursor: hand;
 }
 
-.calculate-button:hover {
-    -fx-background-color: #00b091;
+.action-button:hover {
+    -fx-background-color: #00B295;
 }
 
-.error-label {
-    -fx-text-fill: #d32f2f;
-    -fx-font-size: 16px;
-    -fx-alignment: center;
+.action-button:pressed {
+    -fx-background-color: #009D82;
 }
 
-.results-row {
-    -fx-alignment: center;
-}
-
-.result-card {
-    -fx-background-color: #00c5a3;
-    -fx-background-radius: 10;
+.result-box {
+    -fx-background-color: #00C4A7;
+    -fx-background-radius: 14;
+    -fx-padding: 18 36;
     -fx-min-width: 150;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0.2, 0, 4);
 }
 
-.result-label {
+.result-title {
     -fx-text-fill: #000000;
     -fx-font-size: 18px;
 }
@@ -99,4 +92,10 @@
     -fx-text-fill: #000000;
     -fx-font-size: 32px;
     -fx-font-weight: bold;
+}
+
+.message-label {
+    -fx-text-fill: #D32F2F;
+    -fx-font-size: 16px;
+    -fx-alignment: center;
 }
