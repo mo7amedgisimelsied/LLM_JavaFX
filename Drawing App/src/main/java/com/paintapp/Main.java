@@ -117,23 +117,32 @@ public class Main extends Application {
         logo.setStyle("-fx-text-fill: #333333;");
 
         // Action buttons
-        undoButton = createTextButton("Undo");
-        undoButton.setOnAction(e -> {
-            System.out.println("Undo clicked");
-            undo();
-        });
+        undoButton = new Button("Undo");
+        undoButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-size: 14px; " +
+                "-fx-padding: 5 10 5 10; -fx-cursor: hand;");
+        undoButton.setOnMouseEntered(e -> undoButton.setStyle("-fx-background-color: #e0e0e0; -fx-text-fill: #333333; " +
+                "-fx-font-size: 14px; -fx-padding: 5 10 5 10; -fx-cursor: hand;"));
+        undoButton.setOnMouseExited(e -> undoButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; " +
+                "-fx-font-size: 14px; -fx-padding: 5 10 5 10; -fx-cursor: hand;"));
+        undoButton.setOnMouseClicked(e -> undo());
 
-        redoButton = createTextButton("Redo");
-        redoButton.setOnAction(e -> {
-            System.out.println("Redo clicked");
-            redo();
-        });
+        redoButton = new Button("Redo");
+        redoButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-size: 14px; " +
+                "-fx-padding: 5 10 5 10; -fx-cursor: hand;");
+        redoButton.setOnMouseEntered(e -> redoButton.setStyle("-fx-background-color: #e0e0e0; -fx-text-fill: #333333; " +
+                "-fx-font-size: 14px; -fx-padding: 5 10 5 10; -fx-cursor: hand;"));
+        redoButton.setOnMouseExited(e -> redoButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; " +
+                "-fx-font-size: 14px; -fx-padding: 5 10 5 10; -fx-cursor: hand;"));
+        redoButton.setOnMouseClicked(e -> redo());
 
-        Button exportButton = createTextButton("Export");
-        exportButton.setOnAction(e -> {
-            System.out.println("Export clicked");
-            exportImage();
-        });
+        Button exportButton = new Button("Export");
+        exportButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-size: 14px; " +
+                "-fx-padding: 5 10 5 10; -fx-cursor: hand;");
+        exportButton.setOnMouseEntered(e -> exportButton.setStyle("-fx-background-color: #e0e0e0; -fx-text-fill: #333333; " +
+                "-fx-font-size: 14px; -fx-padding: 5 10 5 10; -fx-cursor: hand;"));
+        exportButton.setOnMouseExited(e -> exportButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; " +
+                "-fx-font-size: 14px; -fx-padding: 5 10 5 10; -fx-cursor: hand;"));
+        exportButton.setOnMouseClicked(e -> exportImage());
 
         topBar.getChildren().addAll(logo, undoButton, redoButton, exportButton);
 
@@ -142,33 +151,83 @@ public class Main extends Application {
         return topBar;
     }
 
-    private Button createTextButton(String text) {
-        Button button = new Button(text);
-        button.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-size: 14px; " +
-                "-fx-padding: 5 10 5 10; -fx-cursor: hand;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: #e0e0e0; -fx-text-fill: #333333; " +
-                "-fx-font-size: 14px; -fx-padding: 5 10 5 10; -fx-cursor: hand;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; " +
-                "-fx-font-size: 14px; -fx-padding: 5 10 5 10; -fx-cursor: hand;"));
-        return button;
-    }
-
     private VBox createLeftToolbar() {
         VBox toolbar = new VBox(0);
         toolbar.setPrefWidth(54);
         toolbar.setStyle("-fx-background-color: white; -fx-border-color: #dddddd; -fx-border-width: 0 1 0 0;");
 
-        // Create tool buttons
-        Button pencilBtn = createToolButton(ToolType.PENCIL, createPencilIcon());
-        Button rectangleBtn = createToolButton(ToolType.RECTANGLE, createRectangleIcon());
-        Button circleBtn = createToolButton(ToolType.CIRCLE, createCircleIcon());
-        Button triangleBtn = createToolButton(ToolType.TRIANGLE, createTriangleIcon());
-        Button eraserBtn = createToolButton(ToolType.ERASER, createEraserIcon());
-        Button textBtn = createToolButton(ToolType.TEXT, createTextIcon());
-
         toolButtons.clear();
-        toolButtons.addAll(List.of(pencilBtn, rectangleBtn, circleBtn, triangleBtn, eraserBtn, textBtn));
-        toolbar.getChildren().addAll(pencilBtn, rectangleBtn, circleBtn, triangleBtn, eraserBtn, textBtn);
+
+        // Create tool buttons with direct lambdas
+        Button pencilBtn = new Button();
+        pencilBtn.setGraphic(createPencilIcon());
+        pencilBtn.setPrefSize(54, 54);
+        pencilBtn.setMinSize(54, 54);
+        pencilBtn.setMaxSize(54, 54);
+        pencilBtn.setStyle("-fx-background-color: white; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
+        pencilBtn.setOnMouseClicked(e -> setActiveTool(ToolType.PENCIL));
+        toolButtons.add(pencilBtn);
+
+        Button rectangleBtn = new Button();
+        rectangleBtn.setGraphic(createRectangleIcon());
+        rectangleBtn.setPrefSize(54, 54);
+        rectangleBtn.setMinSize(54, 54);
+        rectangleBtn.setMaxSize(54, 54);
+        rectangleBtn.setStyle("-fx-background-color: white; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
+        rectangleBtn.setOnMouseClicked(e -> setActiveTool(ToolType.RECTANGLE));
+        toolButtons.add(rectangleBtn);
+
+        Button circleBtn = new Button();
+        circleBtn.setGraphic(createCircleIcon());
+        circleBtn.setPrefSize(54, 54);
+        circleBtn.setMinSize(54, 54);
+        circleBtn.setMaxSize(54, 54);
+        circleBtn.setStyle("-fx-background-color: white; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
+        circleBtn.setOnMouseClicked(e -> setActiveTool(ToolType.CIRCLE));
+        toolButtons.add(circleBtn);
+
+        Button triangleBtn = new Button();
+        triangleBtn.setGraphic(createTriangleIcon());
+        triangleBtn.setPrefSize(54, 54);
+        triangleBtn.setMinSize(54, 54);
+        triangleBtn.setMaxSize(54, 54);
+        triangleBtn.setStyle("-fx-background-color: white; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
+        triangleBtn.setOnMouseClicked(e -> setActiveTool(ToolType.TRIANGLE));
+        toolButtons.add(triangleBtn);
+
+        Button eraserBtn = new Button();
+        eraserBtn.setGraphic(createEraserIcon());
+        eraserBtn.setPrefSize(54, 54);
+        eraserBtn.setMinSize(54, 54);
+        eraserBtn.setMaxSize(54, 54);
+        eraserBtn.setStyle("-fx-background-color: white; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
+        eraserBtn.setOnMouseClicked(e -> setActiveTool(ToolType.ERASER));
+        toolButtons.add(eraserBtn);
+
+        Button textBtn = new Button();
+        textBtn.setGraphic(createTextIcon());
+        textBtn.setPrefSize(54, 54);
+        textBtn.setMinSize(54, 54);
+        textBtn.setMaxSize(54, 54);
+        textBtn.setStyle("-fx-background-color: white; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
+        textBtn.setOnMouseClicked(e -> setActiveTool(ToolType.TEXT));
+        toolButtons.add(textBtn);
+
+        // Add hover effects
+        for (Button btn : toolButtons) {
+            btn.setOnMouseEntered(e -> {
+                if (!btn.getStyle().contains("#d0d0d0")) {
+                    btn.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
+                }
+            });
+            btn.setOnMouseExited(e -> {
+                if (!btn.getStyle().contains("#d0d0d0")) {
+                    btn.setStyle("-fx-background-color: white; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
+                }
+            });
+        }
+
+        toolbar.getChildren().addAll(toolButtons);
 
         // Set initial active tool
         setActiveTool(ToolType.RECTANGLE);
@@ -176,43 +235,12 @@ public class Main extends Application {
         return toolbar;
     }
 
-    private Button createToolButton(ToolType tool, StackPane icon) {
-        Button button = new Button();
-        button.setGraphic(icon);
-        button.setPrefSize(54, 54);
-        button.setMinSize(54, 54);
-        button.setMaxSize(54, 54);
-        button.setStyle("-fx-background-color: white; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
-
-        // Set mouse transparent on icon so clicks go through to button
-        icon.setMouseTransparent(true);
-
-        button.setOnAction(e -> {
-            System.out.println("Tool clicked: " + tool);
-            setActiveTool(tool);
-        });
-
-        button.setOnMouseEntered(e -> {
-            if (currentTool != tool) {
-                button.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
-            }
-        });
-        button.setOnMouseExited(e -> {
-            if (currentTool != tool) {
-                button.setStyle("-fx-background-color: white; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
-            }
-        });
-
-        return button;
-    }
-
     private void setActiveTool(ToolType tool) {
-        System.out.println("Setting active tool: " + tool);
         currentTool = tool;
 
         // Update button styles
-        for (Button btn : toolButtons) {
-            btn.setStyle("-fx-background-color: white; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
+        for (int i = 0; i < toolButtons.size(); i++) {
+            toolButtons.get(i).setStyle("-fx-background-color: white; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 0;");
         }
 
         int index = switch (tool) {
@@ -572,10 +600,7 @@ public class Main extends Application {
     }
 
     private void undo() {
-        if (undoStack.size() <= 1) {
-            System.out.println("Cannot undo - at initial state");
-            return;
-        }
+        if (undoStack.size() <= 1) return;
 
         WritableImage currentState = undoStack.remove(undoStack.size() - 1);
         redoStack.add(currentState);
@@ -585,14 +610,10 @@ public class Main extends Application {
         gc.drawImage(previousState, 0, 0);
 
         updateUndoRedoButtons();
-        System.out.println("Undo performed. Stack size: " + undoStack.size());
     }
 
     private void redo() {
-        if (redoStack.isEmpty()) {
-            System.out.println("Cannot redo - no states to redo");
-            return;
-        }
+        if (redoStack.isEmpty()) return;
 
         WritableImage nextState = redoStack.remove(redoStack.size() - 1);
         undoStack.add(nextState);
@@ -601,21 +622,14 @@ public class Main extends Application {
         gc.drawImage(nextState, 0, 0);
 
         updateUndoRedoButtons();
-        System.out.println("Redo performed. Stack size: " + undoStack.size());
     }
 
     private void updateUndoRedoButtons() {
-        boolean canUndo = undoStack.size() > 1;
-        boolean canRedo = !redoStack.isEmpty();
-
-        undoButton.setDisable(!canUndo);
-        redoButton.setDisable(!canRedo);
-
-        System.out.println("Undo enabled: " + canUndo + ", Redo enabled: " + canRedo);
+        undoButton.setDisable(undoStack.size() <= 1);
+        redoButton.setDisable(redoStack.isEmpty());
     }
 
     private void exportImage() {
-        System.out.println("Export dialog opening...");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Drawing");
         fileChooser.getExtensionFilters().add(
@@ -631,23 +645,18 @@ public class Main extends Application {
                 BufferedImage bufferedImage = SwingFXUtils.fromFXImage(snapshot, null);
                 ImageIO.write(bufferedImage, "png", file);
 
-                System.out.println("Export successful: " + file.getAbsolutePath());
-
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Export Successful");
                 alert.setHeaderText(null);
                 alert.setContentText("Drawing exported successfully!");
                 alert.showAndWait();
             } catch (IOException ex) {
-                System.err.println("Export failed: " + ex.getMessage());
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Export Failed");
                 alert.setHeaderText(null);
                 alert.setContentText("Failed to export drawing: " + ex.getMessage());
                 alert.showAndWait();
             }
-        } else {
-            System.out.println("Export cancelled by user");
         }
     }
 
@@ -658,23 +667,16 @@ public class Main extends Application {
                 (int) (color.getBlue() * 255));
     }
 
-    private StackPane createPencilIcon() {
+    private SVGPath createPencilIcon() {
         SVGPath path = new SVGPath();
         path.setContent("M13.6286 4.37035L19.6294 10.3714L6.59893 23.4024L1.24876 23.993C0.532526 24.0722 -0.072614 23.4666 0.0070714 22.7503L0.602368 17.3962L13.6286 4.37035ZM23.3408 3.47689L20.5233 0.659191C19.6444 -0.21973 18.2189 -0.21973 17.3401 0.659191L14.6893 3.31002L20.6901 9.31105L23.3408 6.66023C24.2197 5.78084 24.2197 4.35581 23.3408 3.47689Z");
         path.setFill(Color.BLACK);
-        path.setScaleX(0.75);
-        path.setScaleY(0.75);
-        path.setMouseTransparent(true);
-
-        StackPane container = new StackPane(path);
-        container.setPrefSize(24, 24);
-        container.setMaxSize(24, 24);
-        container.setMouseTransparent(true);
-
-        return container;
+        path.setScaleX(0.7);
+        path.setScaleY(0.7);
+        return path;
     }
 
-    private StackPane createRectangleIcon() {
+    private SVGPath createRectangleIcon() {
         SVGPath path = new SVGPath();
         path.setContent("M512 112C520.8 112 528 119.2 528 128L528 512C528 520.8 520.8 528 512 528L128 528C119.2 528 112 520.8 112 512L112 128C112 119.2 119.2 112 128 112L512 112zM128 64C92.7 64 64 92.7 64 128L64 512C64 547.3 92.7 576 128 576L512 576C547.3 576 576 547.3 576 512L576 128C576 92.7 547.3 64 512 64L128 64z");
         path.setFill(Color.BLACK);
@@ -682,17 +684,10 @@ public class Main extends Application {
         path.setScaleY(0.037);
         path.setTranslateX(-8);
         path.setTranslateY(-8);
-        path.setMouseTransparent(true);
-
-        StackPane container = new StackPane(path);
-        container.setPrefSize(24, 24);
-        container.setMaxSize(24, 24);
-        container.setMouseTransparent(true);
-
-        return container;
+        return path;
     }
 
-    private StackPane createCircleIcon() {
+    private SVGPath createCircleIcon() {
         SVGPath path = new SVGPath();
         path.setContent("M528 320C528 205.1 434.9 112 320 112C205.1 112 112 205.1 112 320C112 434.9 205.1 528 320 528C434.9 528 528 434.9 528 320zM64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576C178.6 576 64 461.4 64 320z");
         path.setFill(Color.BLACK);
@@ -700,62 +695,34 @@ public class Main extends Application {
         path.setScaleY(0.037);
         path.setTranslateX(-8);
         path.setTranslateY(-8);
-        path.setMouseTransparent(true);
-
-        StackPane container = new StackPane(path);
-        container.setPrefSize(24, 24);
-        container.setMaxSize(24, 24);
-        container.setMouseTransparent(true);
-
-        return container;
+        return path;
     }
 
-    private StackPane createTriangleIcon() {
+    private SVGPath createTriangleIcon() {
         SVGPath path = new SVGPath();
         path.setContent("M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z");
         path.setFill(Color.BLACK);
-        path.setScaleX(1.3);
-        path.setScaleY(1.3);
-        path.setMouseTransparent(true);
-
-        StackPane container = new StackPane(path);
-        container.setPrefSize(24, 24);
-        container.setMaxSize(24, 24);
-        container.setMouseTransparent(true);
-
-        return container;
+        path.setScaleX(1.2);
+        path.setScaleY(1.2);
+        return path;
     }
 
-    private StackPane createEraserIcon() {
+    private SVGPath createEraserIcon() {
         SVGPath path = new SVGPath();
         path.setContent("M23.341 11.341C24.2197 10.4623 24.2197 9.03769 23.341 8.15902L15.841 0.659021C14.9623 -0.21965 13.5378 -0.219697 12.659 0.659021L0.659003 12.659C-0.219668 13.5377 -0.219668 14.9623 0.659003 15.841L5.159 20.341C5.58097 20.7629 6.15328 21 6.75003 21H23.4375C23.7481 21 24 20.7481 24 20.4375V18.5625C24 18.2519 23.7481 18 23.4375 18H16.682L23.341 11.341ZM9.15537 8.40535L15.5947 14.8447L12.4394 18H7.06071L3.31072 14.25L9.15537 8.40535Z");
         path.setFill(Color.BLACK);
-        path.setScaleX(0.75);
-        path.setScaleY(0.75);
-        path.setMouseTransparent(true);
-
-        StackPane container = new StackPane(path);
-        container.setPrefSize(24, 24);
-        container.setMaxSize(24, 24);
-        container.setMouseTransparent(true);
-
-        return container;
+        path.setScaleX(0.7);
+        path.setScaleY(0.7);
+        return path;
     }
 
-    private StackPane createTextIcon() {
+    private SVGPath createTextIcon() {
         SVGPath path = new SVGPath();
         path.setContent("M12.258 3h-8.51l-.083 2.46h.479c.26-1.544.758-1.783 2.693-1.845l.424-.013v7.827c0 .663-.144.82-1.3.923v.52h4.082v-.52c-1.162-.103-1.306-.26-1.306-.923V3.602l.431.013c1.934.062 2.434.301 2.693 1.846h.479z");
         path.setFill(Color.BLACK);
-        path.setScaleX(1.3);
-        path.setScaleY(1.3);
-        path.setMouseTransparent(true);
-
-        StackPane container = new StackPane(path);
-        container.setPrefSize(24, 24);
-        container.setMaxSize(24, 24);
-        container.setMouseTransparent(true);
-
-        return container;
+        path.setScaleX(1.2);
+        path.setScaleY(1.2);
+        return path;
     }
 
     public static void main(String[] args) {
