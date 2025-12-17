@@ -16,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -25,13 +26,18 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.EnumMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class Main extends Application {
@@ -96,12 +102,33 @@ public class Main extends Application {
         BorderPane root = new BorderPane();
         root.getStyleClass().add("app-root");
         root.setTop(createTopBar());
-        root.setLeft(createToolBar());
-        root.setCenter(createCanvasArea());
-        root.setRight(createPropertiesPanel());
+
+        VBox toolbar = createToolBar();
+        StackPane canvasArea = createCanvasArea();
+        VBox propertiesPanel = createPropertiesPanel();
+        canvasArea.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+        HBox mainContent = new HBox();
+        mainContent.getStyleClass().add("main-content");
+        mainContent.setAlignment(Pos.TOP_LEFT);
+        mainContent.setSpacing(0);
+        mainContent.setFillHeight(true);
+        mainContent.getChildren().addAll(toolbar, canvasArea, propertiesPanel);
+        HBox.setHgrow(canvasArea, Priority.ALWAYS);
+
+        root.setCenter(mainContent);
 
         Scene scene = new Scene(root, 1440, 1024);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+            if (event.isControlDown() && event.getCode() == KeyCode.Z) {
+                undo();
+                event.consume();
+            } else if (event.isControlDown() && event.getCode() == KeyCode.Y) {
+                redo();
+                event.consume();
+            }
+        });
 
         stage.setTitle("2D Drawing App");
         stage.setScene(scene);
@@ -125,8 +152,11 @@ public class Main extends Application {
         brand.getStyleClass().add("brand-label");
 
         undoButton = new Button("Undo");
+        undoButton.setId("undoButton");
         redoButton = new Button("Redo");
+        redoButton.setId("redoButton");
         Button exportButton = new Button("Export");
+        exportButton.setId("exportButton");
 
         Stream.of(undoButton, redoButton, exportButton).forEach(btn -> {
             btn.getStyleClass().add("top-action");
@@ -146,6 +176,10 @@ public class Main extends Application {
         toolbar.getStyleClass().add("tool-bar");
         toolbar.setAlignment(Pos.TOP_CENTER);
         toolbar.setPadding(new Insets(24, 12, 24, 12));
+        toolbar.setPrefWidth(96);
+        toolbar.setMinWidth(96);
+        toolbar.setMaxWidth(96);
+        toolbar.setFillWidth(false);
 
         ToggleButton pencil = createToolButton(SVG_PENCIL, Tool.PENCIL);
         ToggleButton rectangle = createToolButton(SVG_RECTANGLE, Tool.RECTANGLE);
@@ -161,7 +195,9 @@ public class Main extends Application {
                 oldToggle.setSelected(true);
                 return;
             }
-            activeTool = (Tool) newToggle.getUserData();
+            if (newToggle != null) {
+                activeTool = (Tool) newToggle.getUserData();
+            }
             finalizeTextField();
         });
 
@@ -172,36 +208,35 @@ public class Main extends Application {
     private ToggleButton createToolButton(String svgPath, Tool tool) {
         ToggleButton button = new ToggleButton();
         button.setGraphic(buildSvgIcon(svgPath));
+        button.setText(toolLabel(tool));
+        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         button.getStyleClass().add("tool-button");
         button.setToggleGroup(toolGroup);
         button.setUserData(tool);
         button.setFocusTraversable(false);
+        button.setMnemonicParsing(false);
+        button.setTooltip(new Tooltip(toolLabel(tool)));
+        button.setAccessibleText(toolLabel(tool)));
+        button.setId(toolLabel(tool).toLowerCase(Locale.ROOT) + "Tool");
         return button;
     }
 
-    private Node buildSvgIcon(String pathContent) {
-        SVGPath path = new SVGPath();
-        path.setContent(pathContent);
-        path.setFill(Color.BLACK);
-        path.setStroke(Color.BLACK);
-
-        Bounds bounds = path.getBoundsInLocal();
-        double max = Math.max(bounds.getWidth(), bounds.getHeight());
-        double scale = max == 0 ? 1 : 18d / max;
-
-        path.getTransforms().add(new Translate(-bounds.getMinX(), -bounds.getMinY()));
-        path.getTransforms().add(new Scale(scale, scale));
-
-        StackPane wrapper = new StackPane(path);
-        wrapper.setPrefSize(24, 24);
-        return wrapper;
+    private String toolLabel(Tool tool) {
+        return switch (tool) {
+            case PENCIL -> "Pencil";
+            case RECTANGLE -> "Rectangle";
+            case CIRCLE -> "Circle";
+            case TRIANGLE -> "Triangle";
+            case ERASER -> "Eraser";
+            case TEXT -> "Text";
+        };
     }
 
     private StackPane createCanvasArea() {
         drawingPane = new Pane();
         drawingPane.getStyleClass().add("drawing-pane");
-        drawingPane.setPrefSize(960, 800);
-        drawingPane.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        drawingPane.setPrefSize(900, 720);
+        drawingPane.setMinSize(320, 320);
         drawingPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         drawingPane.setPickOnBounds(true);
 
@@ -210,13 +245,24 @@ public class Main extends Application {
         StackPane canvasWrapper = new StackPane(drawingPane);
         canvasWrapper.getStyleClass().add("canvas-wrapper");
         canvasWrapper.setPadding(new Insets(32));
-        return canvasWrapper;
-    }
+        canvasWrapper.setMinSize(360, 360);
+        canvasWrapper.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
-    private void configureDrawingHandlers() {
-        drawingPane.setOnMousePressed(this::handleMousePressed);
-        drawingPane.setOnMouseDragged(this::handleMouseDragged);
-        drawingPane.setOnMouseReleased(this::handleMouseReleased);
+        Insets padding = canvasWrapper.getPadding();
+        final double horizontalPadding = padding.getLeft() + padding.getRight();
+        final double verticalPadding = padding.getTop() + padding.getBottom();
+
+        canvasWrapper.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double width = Math.max(320, newVal.doubleValue() - horizontalPadding);
+            drawingPane.setPrefWidth(width);
+        });
+
+        canvasWrapper.heightProperty().addListener((obs, oldVal, newVal) -> {
+            double height = Math.max(320, newVal.doubleValue() - verticalPadding);
+            drawingPane.setPrefHeight(height);
+        });
+
+        return canvasWrapper;
     }
 
     private VBox createPropertiesPanel() {
@@ -287,7 +333,9 @@ public class Main extends Application {
                 fillRow, outlineRow,
                 thicknessHeader, lineThicknessSlider);
         panel.setPrefWidth(320);
-
+        panel.setMinWidth(320);
+        panel.setMaxWidth(320);
+        panel.setFillWidth(true);
         return panel;
     }
 
@@ -309,6 +357,12 @@ public class Main extends Application {
         HBox row = new HBox(16, label, preview);
         row.setAlignment(Pos.CENTER_LEFT);
         return row;
+    }
+
+    private void configureDrawingHandlers() {
+        drawingPane.setOnMousePressed(this::handleMousePressed);
+        drawingPane.setOnMouseDragged(this::handleMouseDragged);
+        drawingPane.setOnMouseReleased(this::handleMouseReleased);
     }
 
     private void handleMousePressed(MouseEvent event) {
@@ -447,7 +501,7 @@ public class Main extends Application {
         if (currentRectangle == null) {
             return;
         }
-        if (currentRectangle.getWidth() < 2 || currentRectangle.getHeight() < 2) {
+        if (currentRectangle.getWidth() < 1 || currentRectangle.getHeight() < 1) {
             drawingPane.getChildren().remove(currentRectangle);
         } else {
             pushAction(currentRectangle);
@@ -483,7 +537,7 @@ public class Main extends Application {
         if (currentEllipse == null) {
             return;
         }
-        if (currentEllipse.getRadiusX() < 1 || currentEllipse.getRadiusY() < 1) {
+        if (currentEllipse.getRadiusX() < 0.5 || currentEllipse.getRadiusY() < 0.5) {
             drawingPane.getChildren().remove(currentEllipse);
         } else {
             pushAction(currentEllipse);
@@ -526,7 +580,7 @@ public class Main extends Application {
         if (pts.size() >= 6) {
             double width = Math.abs(pts.get(4) - pts.get(2));
             double height = Math.abs(pts.get(5) - pts.get(1));
-            if (width < 2 || height < 2) {
+            if (width < 1 || height < 1) {
                 drawingPane.getChildren().remove(currentTriangle);
                 currentTriangle = null;
                 return;
@@ -625,25 +679,50 @@ public class Main extends Application {
     private void exportSnapshot() {
         finalizeTextField();
         WritableImage snapshot = drawingPane.snapshot(new SnapshotParameters(), null);
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Export Drawing");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG Image", "*.png"));
-        File file = chooser.showSaveDialog(primaryStage);
-        if (file != null) {
-            if (!file.getName().toLowerCase().endsWith(".png")) {
-                file = new File(file.getParentFile(), file.getName() + ".png");
-            }
-            try {
-                ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", file);
-            } catch (IOException e) {
-                showError("Unable to export image:\n" + e.getMessage());
-            }
+
+        TextInputDialog dialog = new TextInputDialog("painting");
+        dialog.setTitle("Export Drawing");
+        dialog.setHeaderText("Save as PNG");
+        dialog.setContentText("File name:");
+        dialog.setGraphic(null);
+        dialog.initOwner(primaryStage);
+
+        Optional<String> result = dialog.showAndWait();
+        if (result.isEmpty()) {
+            return;
+        }
+
+        String fileName = result.get().trim();
+        if (fileName.isEmpty()) {
+            fileName = "painting";
+        }
+        fileName = fileName.replaceAll("[\\\\/:*?\"<>|]", "_");
+        if (!fileName.toLowerCase(Locale.ROOT).endsWith(".png")) {
+            fileName += ".png";
+        }
+
+        File exportDir = new File(System.getProperty("user.home"), "PaintPlusExports");
+        if (!exportDir.exists() && !exportDir.mkdirs()) {
+            showError("Unable to create export directory:\n" + exportDir.getAbsolutePath());
+            return;
+        }
+
+        File file = new File(exportDir, fileName);
+        try {
+            ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", file);
+            Alert success = new Alert(Alert.AlertType.INFORMATION, "Image saved to:\n" + file.getAbsolutePath(), ButtonType.OK);
+            success.setHeaderText("Export Successful");
+            success.initOwner(primaryStage);
+            success.showAndWait();
+        } catch (IOException e) {
+            showError("Unable to export image:\n" + e.getMessage());
         }
     }
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
         alert.setHeaderText(null);
+        alert.initOwner(primaryStage);
         alert.showAndWait();
     }
 

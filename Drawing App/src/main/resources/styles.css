@@ -1,8 +1,11 @@
-css
 .app-root {
     -fx-background-color: #ffffff;
     -fx-font-family: "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 14px;
+}
+
+.main-content {
+    -fx-background-color: #ffffff;
 }
 
 .top-bar {
