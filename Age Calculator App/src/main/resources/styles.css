@@ -1,0 +1,35 @@
+/* Optional CSS file - All styles are currently embedded in the Java code for simplicity */
+/* This file can be used if you prefer external stylesheets */
+
+.root {
+    -fx-background-color: #f5f5f5;
+}
+
+.header {
+    -fx-background-color: #1abc9c;
+}
+
+.title {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: black;
+}
+
+.calculate-button {
+    -fx-background-color: #1abc9c;
+    -fx-text-fill: black;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-padding: 18 60 18 60;
+}
+
+.calculate-button:hover {
+    -fx-background-color: #16a085;
+}
+
+.result-box {
+    -fx-background-color: #1abc9c;
+    -fx-background-radius: 8;
+}
