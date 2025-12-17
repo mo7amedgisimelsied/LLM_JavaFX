@@ -26,6 +26,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
@@ -214,6 +215,8 @@ public class Main extends Application {
         button.setUserData(tool);
         button.setFocusTraversable(false);
         button.setMnemonicParsing(false);
+        button.setPrefSize(56, 56);
+        button.setMinSize(56, 56);
         String label = toolLabel(tool);
         button.setTooltip(new Tooltip(label));
         button.setAccessibleText(label);
@@ -236,6 +239,8 @@ public class Main extends Application {
 
         StackPane wrapper = new StackPane(path);
         wrapper.setPrefSize(24, 24);
+        wrapper.setMinSize(24, 24);
+        wrapper.setMaxSize(24, 24);
         return wrapper;
     }
 
@@ -698,37 +703,21 @@ public class Main extends Application {
         finalizeTextField();
         WritableImage snapshot = drawingPane.snapshot(new SnapshotParameters(), null);
 
-        TextInputDialog dialog = new TextInputDialog("painting");
-        dialog.setTitle("Export Drawing");
-        dialog.setHeaderText("Save as PNG");
-        dialog.setContentText("File name:");
-        dialog.setGraphic(null);
-        dialog.initOwner(primaryStage);
-
-        Optional<String> result = dialog.showAndWait();
-        if (result.isEmpty()) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Export Drawing");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG Image", "*.png"));
+        chooser.setInitialFileName("painting.png");
+        File selected = chooser.showSaveDialog(primaryStage);
+        if (selected == null) {
             return;
         }
-
-        String fileName = result.get().trim();
-        if (fileName.isEmpty()) {
-            fileName = "painting";
+        if (!selected.getName().toLowerCase(Locale.ROOT).endsWith(".png")) {
+            selected = new File(selected.getParentFile(), selected.getName() + ".png");
         }
-        fileName = fileName.replaceAll("[\\\\/:*?\"<>|]", "_");
-        if (!fileName.toLowerCase(Locale.ROOT).endsWith(".png")) {
-            fileName += ".png";
-        }
-
-        File exportDir = new File(System.getProperty("user.home"), "PaintPlusExports");
-        if (!exportDir.exists() && !exportDir.mkdirs()) {
-            showError("Unable to create export directory:\n" + exportDir.getAbsolutePath());
-            return;
-        }
-
-        File file = new File(exportDir, fileName);
         try {
-            ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", file);
-            Alert success = new Alert(Alert.AlertType.INFORMATION, "Image saved to:\n" + file.getAbsolutePath(), ButtonType.OK);
+            ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", selected);
+            Alert success = new Alert(Alert.AlertType.INFORMATION,
+                    "Image saved to:\n" + selected.getAbsolutePath(), ButtonType.OK);
             success.setHeaderText("Export Successful");
             success.initOwner(primaryStage);
             success.showAndWait();
