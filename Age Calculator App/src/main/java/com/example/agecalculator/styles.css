@@ -1,0 +1,102 @@
+.root {
+    -fx-background-color: #ffffff;
+    -fx-font-family: "Arial";
+}
+
+.header-pane {
+    -fx-background-color: #00c5a3;
+    -fx-padding: 30 0;
+}
+
+.header-label {
+    -fx-text-fill: #000000;
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+}
+
+.main-content {
+    -fx-padding: 60 220;
+    -fx-alignment: center;
+}
+
+.form-box {
+    -fx-alignment: center;
+}
+
+.date-row {
+    -fx-alignment: center-left;
+}
+
+.input-label {
+    -fx-text-fill: #000000;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.date-input-container {
+    -fx-border-color: #1e1e1e;
+    -fx-border-width: 0 0 2 0;
+    -fx-padding: 0 0 6 0;
+}
+
+.modern-date-picker {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.modern-date-picker > .text-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 6 40 6 6;
+    -fx-font-size: 18px;
+    -fx-text-fill: #1e1e1e;
+}
+
+.modern-date-picker > .arrow-button {
+    -fx-opacity: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-padding: 0;
+}
+
+.calculate-button {
+    -fx-background-color: #00c5a3;
+    -fx-text-fill: #000000;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 48;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+}
+
+.calculate-button:hover {
+    -fx-background-color: #00b091;
+}
+
+.error-label {
+    -fx-text-fill: #d32f2f;
+    -fx-font-size: 16px;
+    -fx-alignment: center;
+}
+
+.results-row {
+    -fx-alignment: center;
+}
+
+.result-card {
+    -fx-background-color: #00c5a3;
+    -fx-background-radius: 10;
+    -fx-min-width: 150;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0.2, 0, 4);
+}
+
+.result-label {
+    -fx-text-fill: #000000;
+    -fx-font-size: 18px;
+}
+
+.result-value {
+    -fx-text-fill: #000000;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
