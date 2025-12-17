@@ -208,17 +208,35 @@ public class Main extends Application {
     private ToggleButton createToolButton(String svgPath, Tool tool) {
         ToggleButton button = new ToggleButton();
         button.setGraphic(buildSvgIcon(svgPath));
-        button.setText(toolLabel(tool));
         button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         button.getStyleClass().add("tool-button");
         button.setToggleGroup(toolGroup);
         button.setUserData(tool);
         button.setFocusTraversable(false);
         button.setMnemonicParsing(false);
-        button.setTooltip(new Tooltip(toolLabel(tool)));
-        button.setAccessibleText(toolLabel(tool)));
-        button.setId(toolLabel(tool).toLowerCase(Locale.ROOT) + "Tool");
+        String label = toolLabel(tool);
+        button.setTooltip(new Tooltip(label));
+        button.setAccessibleText(label);
+        button.setId(label.toLowerCase(Locale.ROOT) + "Tool");
         return button;
+    }
+
+    private Node buildSvgIcon(String pathContent) {
+        SVGPath path = new SVGPath();
+        path.setContent(pathContent);
+        path.setFill(Color.BLACK);
+        path.setStroke(Color.BLACK);
+
+        Bounds bounds = path.getBoundsInLocal();
+        double max = Math.max(bounds.getWidth(), bounds.getHeight());
+        double scale = max == 0 ? 1 : 18d / max;
+
+        path.getTransforms().add(new Translate(-bounds.getMinX(), -bounds.getMinY()));
+        path.getTransforms().add(new Scale(scale, scale));
+
+        StackPane wrapper = new StackPane(path);
+        wrapper.setPrefSize(24, 24);
+        return wrapper;
     }
 
     private String toolLabel(Tool tool) {
