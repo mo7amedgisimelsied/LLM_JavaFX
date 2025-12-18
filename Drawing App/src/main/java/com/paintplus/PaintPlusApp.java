@@ -263,24 +263,12 @@ public class PaintPlusApp extends Application {
             g.fillOval(minX, minY, w, h);
             g.strokeOval(minX, minY, w, h);
         } else if (tool == Tool.TRIANGLE) {
-            double[ xPoints = { x1, x2, (x1 + x2) / 2 }; // Not perfect triangle logic based on drag box, but standard
-            // Better triangle: Top Center, Bottom Left, Bottom Right based on box
-            double topX = minX + w / 2;
-            double topY = minY;
-            double leftX = minX;
-            double leftY = minY + h;
-            double rightX = minX + w;
-            double rightY = minY + h;
+            // Triangle logic: Top Center, Bottom Left, Bottom Right based on bounding box
+            double[] xPoints = { minX + w / 2, minX, minX + w };
+            double[] yPoints = { minY, minY + h, minY + h };
 
-            // Adjust based on drag direction
-            if (y2 < y1) { // Dragged up
-                topY = minY;
-                leftY = minY + h;
-                rightY = minY + h;
-            }
-
-            g.fillPolygon(new double[]{minX + w/2, minX, minX + w}, new double[]{minY, minY + h, minY + h}, 3);
-            g.strokePolygon(new double[]{minX + w/2, minX, minX + w}, new double[]{minY, minY + h, minY + h}, 3);
+            g.fillPolygon(xPoints, yPoints, 3);
+            g.strokePolygon(xPoints, yPoints, 3);
         }
     }
 
