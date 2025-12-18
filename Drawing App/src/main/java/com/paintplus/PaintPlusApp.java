@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -71,15 +72,13 @@ public class PaintPlusApp extends Application {
         // 4. Center Canvas
         StackPane canvasContainer = new StackPane();
         canvasContainer.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 20;");
-        canvasContainer.setAlignment(Pos.CENTER); // Ensure canvas stays in middle
+        canvasContainer.setAlignment(Pos.CENTER);
 
         double canvasWidth = 800;
         double canvasHeight = 600;
 
         mainCanvas = new Canvas(canvasWidth, canvasHeight);
         tempCanvas = new Canvas(canvasWidth, canvasHeight);
-
-        // CRITICAL FIX: Allow mouse events to pass through overlays
         tempCanvas.setMouseTransparent(true);
 
         gc = mainCanvas.getGraphicsContext2D();
@@ -88,18 +87,16 @@ public class PaintPlusApp extends Application {
         // Initialize white background
         gc.setFill(Color.WHITE);
         gc.fillRect(0, 0, canvasWidth, canvasHeight);
-        saveState(); // Initial state
+        saveState();
 
         // Canvas Border
         Pane canvasBorder = new Pane();
         canvasBorder.setMaxSize(canvasWidth, canvasHeight);
         canvasBorder.getStyleClass().add("canvas-border");
-        canvasBorder.setMouseTransparent(true); // CRITICAL FIX
+        canvasBorder.setMouseTransparent(true);
 
-        // Stack them: Main Canvas bottom, Temp Canvas middle, Border top
         StackPane canvasStack = new StackPane(mainCanvas, tempCanvas, canvasBorder);
         canvasStack.setMaxSize(canvasWidth, canvasHeight);
-        // Ensure stack doesn't grow
         canvasStack.setMinSize(canvasWidth, canvasHeight);
 
         canvasContainer.getChildren().add(canvasStack);
@@ -136,7 +133,6 @@ public class PaintPlusApp extends Application {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Add spacer to push logo/buttons correctly
         nav.getChildren().addAll(brand, new Region(), btnUndo, btnRedo, btnExport);
         ((Region)nav.getChildren().get(1)).setPrefWidth(20);
 
@@ -148,7 +144,6 @@ public class PaintPlusApp extends Application {
         toolbar.getStyleClass().add("left-toolbar");
         toolbar.setAlignment(Pos.TOP_CENTER);
         toolbar.setPadding(new Insets(20, 10, 20, 10));
-        // Force width to prevent expansion
         toolbar.setPrefWidth(60);
         toolbar.setMinWidth(60);
         toolbar.setMaxWidth(60);
@@ -169,7 +164,7 @@ public class PaintPlusApp extends Application {
         btnEraser.setToggleGroup(toolsGroup);
         btnText.setToggleGroup(toolsGroup);
 
-        btnPencil.setSelected(true); // Default
+        btnPencil.setSelected(true);
 
         toolsGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
@@ -184,10 +179,16 @@ public class PaintPlusApp extends Application {
     private ToggleButton createToolButton(Tool tool, SVGPath icon) {
         ToggleButton btn = new ToggleButton();
 
-        // Wrap icon in a container to ensure centering and size control
-        StackPane iconContainer = new StackPane(icon);
+        // CRITICAL FIX: Wrap icon in Group.
+        // A Group's layout bounds are derived from the transformed bounds of its children.
+        // This ensures the Scale transform on the SVGPath is respected by the layout engine.
+        Group scaledIcon = new Group(icon);
+
+        StackPane iconContainer = new StackPane(scaledIcon);
         iconContainer.setPrefSize(24, 24);
         iconContainer.setMaxSize(24, 24);
+        iconContainer.setMinSize(24, 24);
+
         icon.getStyleClass().add("tool-icon");
 
         btn.setGraphic(iconContainer);
@@ -198,11 +199,11 @@ public class PaintPlusApp extends Application {
 
     private void setupEventHandlers() {
         mainCanvas.setOnMousePressed(e -> {
-            saveState(); // Save before new action
+            saveState();
             startX = e.getX();
             startY = e.getY();
 
-            configureGraphics(gc); // Set colors/strokes
+            configureGraphics(gc);
             configureGraphics(tempGc);
 
             if (currentTool == Tool.PENCIL) {
@@ -210,10 +211,8 @@ public class PaintPlusApp extends Application {
                 gc.moveTo(e.getX(), e.getY());
                 gc.stroke();
             } else if (currentTool == Tool.ERASER) {
-                // For eraser, we start path or immediate clear
                 gc.beginPath();
                 gc.moveTo(e.getX(), e.getY());
-                // Immediate clear at click point
                 double size = colorPicker.lineThicknessProperty().get();
                 gc.clearRect(e.getX() - size/2, e.getY() - size/2, size, size);
             } else if (currentTool == Tool.TEXT) {
@@ -229,7 +228,6 @@ public class PaintPlusApp extends Application {
                 double size = colorPicker.lineThicknessProperty().get();
                 gc.clearRect(e.getX() - size/2, e.getY() - size/2, size, size);
             } else if (isShapeTool()) {
-                // Clear temp canvas and draw preview
                 tempGc.clearRect(0, 0, tempCanvas.getWidth(), tempCanvas.getHeight());
                 drawShape(tempGc, startX, startY, e.getX(), e.getY(), currentTool);
             }
@@ -237,7 +235,6 @@ public class PaintPlusApp extends Application {
 
         mainCanvas.setOnMouseReleased(e -> {
             if (isShapeTool()) {
-                // Commit shape to main canvas
                 tempGc.clearRect(0, 0, tempCanvas.getWidth(), tempCanvas.getHeight());
                 configureGraphics(gc);
                 drawShape(gc, startX, startY, e.getX(), e.getY(), currentTool);
@@ -278,11 +275,9 @@ public class PaintPlusApp extends Application {
             g.fillOval(minX, minY, w, h);
             g.strokeOval(minX, minY, w, h);
         } else if (tool == Tool.TRIANGLE) {
-            // Corrected Triangle Logic
             double[] xPoints = { minX + w / 2, minX, minX + w };
             double[] yPoints = { minY, minY + h, minY + h };
 
-            // Invert if dragged up
             if (y2 < y1) {
                 yPoints[0] = minY + h;
                 yPoints[1] = minY;
@@ -302,13 +297,11 @@ public class PaintPlusApp extends Application {
 
         result.ifPresent(text -> {
             configureGraphics(gc);
-            gc.setFont(javafx.scene.text.Font.font("Arial", colorPicker.lineThicknessProperty().get() * 0.5 + 20)); // Approximate sizing
+            gc.setFont(javafx.scene.text.Font.font("Arial", colorPicker.lineThicknessProperty().get() * 0.5 + 20));
             gc.fillText(text, x, y);
             gc.strokeText(text, x, y);
         });
     }
-
-    // --- History & Actions ---
 
     private void saveState() {
         WritableImage snap = new WritableImage((int)mainCanvas.getWidth(), (int)mainCanvas.getHeight());
