@@ -37,7 +37,7 @@ public class PaintPlusApp extends Application {
     private GraphicsContext gc;
     private GraphicsContext tempGc;
 
-    // Undo/Redo Stacks (storing snapshots)
+    // Undo/Redo Stacks
     private final Stack<WritableImage> undoStack = new Stack<>();
     private final Stack<WritableImage> redoStack = new Stack<>();
 
@@ -71,13 +71,16 @@ public class PaintPlusApp extends Application {
         // 4. Center Canvas
         StackPane canvasContainer = new StackPane();
         canvasContainer.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 20;");
+        canvasContainer.setAlignment(Pos.CENTER); // Ensure canvas stays in middle
 
         double canvasWidth = 800;
         double canvasHeight = 600;
 
         mainCanvas = new Canvas(canvasWidth, canvasHeight);
         tempCanvas = new Canvas(canvasWidth, canvasHeight);
-        tempCanvas.setMouseTransparent(true); // Events go to main canvas, but we draw on temp for preview
+
+        // CRITICAL FIX: Allow mouse events to pass through overlays
+        tempCanvas.setMouseTransparent(true);
 
         gc = mainCanvas.getGraphicsContext2D();
         tempGc = tempCanvas.getGraphicsContext2D();
@@ -91,10 +94,13 @@ public class PaintPlusApp extends Application {
         Pane canvasBorder = new Pane();
         canvasBorder.setMaxSize(canvasWidth, canvasHeight);
         canvasBorder.getStyleClass().add("canvas-border");
+        canvasBorder.setMouseTransparent(true); // CRITICAL FIX
 
         // Stack them: Main Canvas bottom, Temp Canvas middle, Border top
         StackPane canvasStack = new StackPane(mainCanvas, tempCanvas, canvasBorder);
         canvasStack.setMaxSize(canvasWidth, canvasHeight);
+        // Ensure stack doesn't grow
+        canvasStack.setMinSize(canvasWidth, canvasHeight);
 
         canvasContainer.getChildren().add(canvasStack);
         root.setCenter(canvasContainer);
@@ -130,8 +136,7 @@ public class PaintPlusApp extends Application {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Based on wireframe: Logo left, Buttons next to it or right?
-        // Wireframe: "Action Menu: To the right of the logo".
+        // Add spacer to push logo/buttons correctly
         nav.getChildren().addAll(brand, new Region(), btnUndo, btnRedo, btnExport);
         ((Region)nav.getChildren().get(1)).setPrefWidth(20);
 
@@ -143,6 +148,10 @@ public class PaintPlusApp extends Application {
         toolbar.getStyleClass().add("left-toolbar");
         toolbar.setAlignment(Pos.TOP_CENTER);
         toolbar.setPadding(new Insets(20, 10, 20, 10));
+        // Force width to prevent expansion
+        toolbar.setPrefWidth(60);
+        toolbar.setMinWidth(60);
+        toolbar.setMaxWidth(60);
 
         ToggleGroup toolsGroup = new ToggleGroup();
 
@@ -174,11 +183,16 @@ public class PaintPlusApp extends Application {
 
     private ToggleButton createToolButton(Tool tool, SVGPath icon) {
         ToggleButton btn = new ToggleButton();
-        btn.setGraphic(icon);
+
+        // Wrap icon in a container to ensure centering and size control
+        StackPane iconContainer = new StackPane(icon);
+        iconContainer.setPrefSize(24, 24);
+        iconContainer.setMaxSize(24, 24);
+        icon.getStyleClass().add("tool-icon");
+
+        btn.setGraphic(iconContainer);
         btn.setUserData(tool);
         btn.getStyleClass().add("tool-button");
-        // Ensure icon fits
-        icon.getStyleClass().add("tool-icon");
         return btn;
     }
 
@@ -196,9 +210,12 @@ public class PaintPlusApp extends Application {
                 gc.moveTo(e.getX(), e.getY());
                 gc.stroke();
             } else if (currentTool == Tool.ERASER) {
+                // For eraser, we start path or immediate clear
                 gc.beginPath();
                 gc.moveTo(e.getX(), e.getY());
-                // Eraser specific config handled in drag
+                // Immediate clear at click point
+                double size = colorPicker.lineThicknessProperty().get();
+                gc.clearRect(e.getX() - size/2, e.getY() - size/2, size, size);
             } else if (currentTool == Tool.TEXT) {
                 handleTextTool(e.getX(), e.getY());
             }
@@ -209,8 +226,6 @@ public class PaintPlusApp extends Application {
                 gc.lineTo(e.getX(), e.getY());
                 gc.stroke();
             } else if (currentTool == Tool.ERASER) {
-                // Eraser logic: Clear rect or white stroke?
-                // FR1.2 says "remove existing marks". Assuming white canvas.
                 double size = colorPicker.lineThicknessProperty().get();
                 gc.clearRect(e.getX() - size/2, e.getY() - size/2, size, size);
             } else if (isShapeTool()) {
@@ -263,9 +278,16 @@ public class PaintPlusApp extends Application {
             g.fillOval(minX, minY, w, h);
             g.strokeOval(minX, minY, w, h);
         } else if (tool == Tool.TRIANGLE) {
-            // Triangle logic: Top Center, Bottom Left, Bottom Right based on bounding box
+            // Corrected Triangle Logic
             double[] xPoints = { minX + w / 2, minX, minX + w };
             double[] yPoints = { minY, minY + h, minY + h };
+
+            // Invert if dragged up
+            if (y2 < y1) {
+                yPoints[0] = minY + h;
+                yPoints[1] = minY;
+                yPoints[2] = minY;
+            }
 
             g.fillPolygon(xPoints, yPoints, 3);
             g.strokePolygon(xPoints, yPoints, 3);
@@ -280,8 +302,7 @@ public class PaintPlusApp extends Application {
 
         result.ifPresent(text -> {
             configureGraphics(gc);
-            // Basic font sizing relative to thickness or fixed? FR doesn't specify Font Size control, use Thickness or fixed.
-            gc.setFont(javafx.scene.text.Font.font("Arial", colorPicker.lineThicknessProperty().get() * 2 + 10));
+            gc.setFont(javafx.scene.text.Font.font("Arial", colorPicker.lineThicknessProperty().get() * 0.5 + 20)); // Approximate sizing
             gc.fillText(text, x, y);
             gc.strokeText(text, x, y);
         });
@@ -310,7 +331,7 @@ public class PaintPlusApp extends Application {
     private void redo() {
         if (!redoStack.isEmpty()) {
             WritableImage next = redoStack.pop();
-            saveStateToUndoOnly(currentSnapshot()); // Save current to undo before redoing
+            undoStack.push(currentSnapshot());
             drawImage(next);
         }
     }
@@ -319,13 +340,6 @@ public class PaintPlusApp extends Application {
         WritableImage snap = new WritableImage((int)mainCanvas.getWidth(), (int)mainCanvas.getHeight());
         mainCanvas.snapshot(null, snap);
         return snap;
-    }
-
-    // Helper to push to undo without clearing redo (used inside redo logic mostly, but simple stack logic is preferred)
-    // Actually, standard Redo: Pop redo, push current to Undo, apply redo.
-    // My undo() pushed current to Redo. So redo() pops Redo, pushes current state to Undo, draws Redo image.
-    private void saveStateToUndoOnly(WritableImage img) {
-        undoStack.push(img);
     }
 
     private void drawImage(WritableImage img) {
@@ -343,7 +357,6 @@ public class PaintPlusApp extends Application {
             try {
                 WritableImage writableImage = new WritableImage((int)mainCanvas.getWidth(), (int)mainCanvas.getHeight());
                 mainCanvas.snapshot(null, writableImage);
-                // SwingFXUtils is in javafx.swing module
                 ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
             } catch (IOException ex) {
                 ex.printStackTrace();
