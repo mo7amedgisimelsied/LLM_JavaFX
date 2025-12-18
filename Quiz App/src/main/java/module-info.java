@@ -2,8 +2,8 @@ module com.quizapp {
     requires javafx.controls;
     requires java.sql;
 
-    // Updated module requirement for the new connector
-    requires com.mysql.connector.j;
+    // Correct module name for com.mysql:mysql-connector-j artifact
+    requires mysql.connector.j;
 
     exports com.quizapp;
 }
