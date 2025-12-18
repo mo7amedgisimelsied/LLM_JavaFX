@@ -1,0 +1,102 @@
+    /* Global Colors */
+    * {
+        -fx-base-purple: #2E004E; /* Deep Background */
+        -fx-light-purple: #5A1E85; /* Components */
+        -fx-text-white: #FFFFFF;
+        -fx-text-black: #000000;
+    }
+
+    .root-pane {
+        -fx-background-color: -fx-base-purple;
+    }
+
+    /* Typography */
+    .page-title {
+        -fx-font-family: 'Segoe UI', sans-serif;
+        -fx-font-size: 32px;
+        -fx-font-weight: bold;
+        -fx-text-fill: -fx-text-white;
+    }
+
+    .question-text {
+        -fx-font-family: 'Segoe UI', sans-serif;
+        -fx-font-size: 18px;
+        -fx-text-fill: -fx-text-white;
+    }
+
+    /* Topic Selection Buttons */
+    .topic-button {
+        -fx-background-color: -fx-text-white;
+        -fx-text-fill: -fx-text-black;
+        -fx-font-size: 18px;
+        -fx-font-weight: bold;
+        -fx-background-radius: 15;
+        -fx-pref-width: 400px;
+        -fx-pref-height: 60px;
+        -fx-cursor: hand;
+        -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);
+    }
+
+    .topic-button:hover {
+        -fx-background-color: #f0f0f0;
+    }
+
+    /* Question Box */
+    .question-box {
+        -fx-background-color: -fx-light-purple;
+        -fx-background-radius: 8;
+        -fx-padding: 20;
+        -fx-pref-width: 800px;
+        -fx-min-height: 100px;
+    }
+
+    /* Radio Buttons */
+    .option-radio {
+        -fx-text-fill: -fx-text-white;
+        -fx-font-size: 18px;
+        -fx-cursor: hand;
+    }
+
+    .option-radio .radio {
+        -fx-background-color: transparent;
+        -fx-border-color: -fx-text-white;
+        -fx-border-radius: 10px;
+    }
+
+    .option-radio:selected .radio .dot {
+        -fx-background-color: -fx-text-white;
+        -fx-background-insets: 0;
+    }
+
+    /* Navigation Buttons */
+    .nav-button {
+        -fx-background-color: transparent;
+        -fx-text-fill: -fx-text-white;
+        -fx-font-size: 16px;
+        -fx-font-weight: bold;
+        -fx-cursor: hand;
+    }
+
+    .nav-button:hover {
+        -fx-underline: true;
+    }
+
+    .nav-button:disabled {
+        -fx-opacity: 0.5;
+    }
+
+    /* Result Screen Button */
+    .action-button {
+        -fx-background-color: -fx-text-white;
+        -fx-text-fill: -fx-base-purple;
+        -fx-font-size: 18px;
+        -fx-font-weight: bold;
+        -fx-background-radius: 10;
+        -fx-pref-width: 300px;
+        -fx-pref-height: 50px;
+        -fx-cursor: hand;
+    }
+
+    .action-button:hover {
+        -fx-background-color: #e0e0e0;
+    }
